@@ -2,3 +2,4 @@
   - Output format changes. Refs #1.
   - Fix README.md. Refs #3.
   - From JSON to Python dictionary. Refs #4.
+  - Fix max range value each time the request fail
