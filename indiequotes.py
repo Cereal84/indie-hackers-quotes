@@ -15,10 +15,19 @@ parser.add_argument('-n', '--number_of_quotes', metavar='N', type=int,
 BASE_URL = 'https://indie-hackers.firebaseio.com/loadingQuotes/{}.json'
 
 
+
+def render_quote(quote):
+    header_str = 'Quote: #%s' % quote['quote_index']
+    print("\n%s\n%s" % (header_str, '='*len(header_str)))
+    print("\"%s\"" % quote['quote'])
+    print("\n%s, %s - %s" %(quote['author'], quote['company'], quote['mrr']))
+    print("%s\n" %(quote['url']))
+
 def get_random_quote(max_quote):
 
     data = None
     random_quote_index = None
+    res = dict()
 
     # while you can't find a valid quote search randomly
     while True :
@@ -40,18 +49,24 @@ def get_random_quote(max_quote):
     byline = data['byline']
     components = byline.split('of')
     author = components[0].rstrip()
+    round_bracket_index = components[1].find('(')
+    company = components[1][0: round_bracket_index - 1]
+    mrr = components[1][round_bracket_index +1 : -1]
 
-    header_str = 'Quote: #%s' % random_quote_index
-    print("\n%s\n%s" % (header_str, '='*len(header_str)))
-    print("\"%s\"" % quote)
-    print("\n%s, %s" %(author, components[1]))
-    print("%s\n" %(quote_url))
+    res['quote'] = quote
+    res['author'] = author
+    res['company'] = company
+    res['mrr'] = mrr
+    res['quote_index'] = random_quote_index
+    res['url'] = quote_url
 
+    return res
 
 
 if __name__ == "__main__":
 
     args = parser.parse_args()
     for i in  range(0, args.number_of_quotes):
-        get_random_quote(args.max_random)
+        quote = get_random_quote(args.max_random)
+        render_quote(quote)
 
