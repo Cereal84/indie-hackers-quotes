@@ -7,7 +7,7 @@ from random import randint
 
 parser = argparse.ArgumentParser(description="Show, random, indiehacker's quotes")
 parser.add_argument('-m', '--max_random', metavar='N', type=int,
-                    help='max value of random range', default=150)
+                    help='max value of random range', default=1500)
 parser.add_argument('-n', '--number_of_quotes', metavar='N', type=int,
                     help='number of quotes to show', default=1)
 
@@ -29,10 +29,12 @@ def get_random_quote(max_quote):
     random_quote_index = None
     res = dict()
 
+    max_range = max_quote
+
     # while you can't find a valid quote search randomly
     while True :
         # the max value should get from somewhere
-        random_quote_index = randint(0, 200)
+        random_quote_index = randint(0, max_range)
         url_req = BASE_URL.format( random_quote_index)
 
         # send request
@@ -41,6 +43,10 @@ def get_random_quote(max_quote):
 
         if data is not None:
             break
+
+        # the range is too big so adjust max value
+        # with the current random value
+        max_range = random_quote_index
 
 
     quote = data['quote']
