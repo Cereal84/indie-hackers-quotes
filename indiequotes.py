@@ -11,17 +11,60 @@ parser.add_argument('-m', '--max_random', metavar='N', type=int,
 parser.add_argument('-n', '--number_of_quotes', metavar='N', type=int,
                     help='number of quotes to show', default=1)
 
+parser.add_argument('-q', '--quote', metavar='N', type=int,
+                    help='get quote identified by index QUOTE', default=None)
+
+
 
 BASE_URL = 'https://indie-hackers.firebaseio.com/loadingQuotes/{}.json'
 
 
 
 def render_quote(quote):
+
+    if quote is None:
+        print("Quote not found. Probably this one does not exists.")
+        return
+
     header_str = 'Quote: #%s' % quote['quote_index']
     print("\n%s\n%s" % (header_str, '='*len(header_str)))
     print("\"%s\"" % quote['quote'])
     print("\n%s, %s - %s" %(quote['author'], quote['company'], quote['mrr']))
     print("%s\n" %(quote['url']))
+
+
+def get_quote(quote_index):
+
+    url_req = BASE_URL.format( quote_index )
+    res = None
+
+    # send request
+    r = requests.get(url = url_req)
+    data = r.json()
+
+    if data is not None:
+
+        quote = data['quote']
+        quote_url = data.get('url', '----')
+
+        byline = data['byline']
+        components = byline.split('of')
+        author = components[0].rstrip()
+        round_bracket_index = components[1].find('(')
+        company = components[1][0: round_bracket_index - 1]
+        mrr = components[1][round_bracket_index +1 : -1]
+
+        res = dict()
+
+        res['quote'] = quote
+        res['author'] = author
+        res['company'] = company
+        res['mrr'] = mrr
+        res['quote_index'] = quote_index
+        res['url'] = quote_url
+
+    return res
+
 
 def get_random_quote(max_quote):
 
@@ -35,44 +78,28 @@ def get_random_quote(max_quote):
     while True :
         # the max value should get from somewhere
         random_quote_index = randint(0, max_range)
-        url_req = BASE_URL.format( random_quote_index)
 
-        # send request
-        r = requests.get(url = url_req)
-        data = r.json()
-
+        data = get_quote(random_quote_index)
         if data is not None:
             break
-
         # the range is too big so adjust max value
         # with the current random value
         max_range = random_quote_index
 
+    return data
 
-    quote = data['quote']
-    quote_url = data.get('url', '----')
-
-    byline = data['byline']
-    components = byline.split('of')
-    author = components[0].rstrip()
-    round_bracket_index = components[1].find('(')
-    company = components[1][0: round_bracket_index - 1]
-    mrr = components[1][round_bracket_index +1 : -1]
-
-    res['quote'] = quote
-    res['author'] = author
-    res['company'] = company
-    res['mrr'] = mrr
-    res['quote_index'] = random_quote_index
-    res['url'] = quote_url
-
-    return res
 
 
 if __name__ == "__main__":
 
     args = parser.parse_args()
-    for i in  range(0, args.number_of_quotes):
-        quote = get_random_quote(args.max_random)
+
+    if args.quote is not None:
+        quote = get_quote(args.quote)
         render_quote(quote)
+    else:
+
+        for i in  range(0, args.number_of_quotes):
+            quote = get_random_quote(args.max_random)
+            render_quote(quote)
 
