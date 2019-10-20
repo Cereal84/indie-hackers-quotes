@@ -5,13 +5,13 @@ import argparse
 from random import randint
 
 
-parser = argparse.ArgumentParser(description="Show, random, indiehacker's quotes")
+parser = argparse.ArgumentParser(description="Show, random or specific, indiehacker's quotes")
 parser.add_argument('-m', '--max_random', metavar='N', type=int,
                     help='max value of random range', default=1500)
 parser.add_argument('-n', '--number_of_quotes', metavar='N', type=int,
                     help='number of quotes to show', default=1)
 
-parser.add_argument('-q', '--quote', metavar='N', type=int,
+parser.add_argument('-q', '--quote', metavar='QUOTE_INDEX', type=int,
                     help='get quote identified by index QUOTE', default=None)
 
 
